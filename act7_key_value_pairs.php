@@ -1,6 +1,6 @@
 <?php
-$studentInfo = array("Name"=>"Alice", "Age"=>20, "Grade"=>"A", "City"=>"Baguio");
-foreach ($studentInfo as $key => $value) {
-    echo "$key: $value\n";
+$studentDetails = array("Name" => "Alice", "Age" => 20, "Grade" => "A", "City" => "Baguio");
+foreach ($studentDetails as $attribute => $detail) {
+    echo "$attribute: $detail\n";
 }
-?>
+?>  

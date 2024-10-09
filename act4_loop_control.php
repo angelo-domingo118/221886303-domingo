@@ -1,10 +1,10 @@
 <?php
-for ($i = 1; $i < 11; $i++) {
-    if ($i == 5) {
+for ($counter = 1; $counter < 11; $counter++) {
+    if ($counter == 5) {
         continue;
     }
-    echo $i . " ";
-    if ($i == 8) {
+    echo $counter . " ";
+    if ($counter == 8) {
         break;
     }
 }

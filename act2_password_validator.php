@@ -1,10 +1,10 @@
 <?php
-$pass = "password123";
+$correctPassword = "password123";
 do {
-    $passInput = readline("Please enter the password: ");
-    if ($pass !== $passInput) {
+    $userInput = readline("Please enter the password: ");
+    if ($correctPassword !== $userInput) {
         echo "Incorrect Password.\n";
     }
-} while ($pass !== $passInput);
+} while ($correctPassword !== $userInput);
 echo "Access Granted.";
 ?>

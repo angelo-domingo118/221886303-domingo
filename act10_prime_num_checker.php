@@ -1,20 +1,26 @@
 <?php
-$input = intval(readline("Enter a number: "));
-$isPrime = true;
+$input = readline("Enter a number: ");
 
-if ($input <= 1) {
-    $isPrime = false;
+if (!is_numeric($input) || strpos($input, '.') !== false || $input < 0 || $input != round($input)) {
+    echo "Invalid input. Please enter a non-negative integer.";
 } else {
-    for ($i = 2; $i < $input; $i++) {
-        if ($input % $i == 0) {
-            $isPrime = false;
-            break;
+    $number = intval($input);
+    $isPrime = true;
+
+    if ($number <= 1) {
+        $isPrime = false;
+    } else {
+        for ($divisor = 2; $divisor < $number; $divisor++) {
+            if ($number % $divisor == 0) {
+                $isPrime = false;
+                break;
+            }
         }
     }
-}
 
-if ($isPrime) {
-    echo "$input is a prime number.";
-} else {
-    echo "$input is not a prime number.";
+    if ($isPrime) {
+        echo "$number is a prime number.";
+    } else {
+        echo "$number is not a prime number.";
+    }
 }

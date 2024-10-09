@@ -1,9 +1,9 @@
 <?php
-    $a = 1;
-    while ($a <= 20) {
-        if($a % 2 == 0){
-            print($a." ");
+    $number = 1;
+    while ($number <= 20) {
+        if($number % 2 == 0){
+            print($number." ");
         }
-        $a++;
+        $number++;
     }
 ?>
