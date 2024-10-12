@@ -10,18 +10,18 @@
         body {
             font-family: 'Roboto', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #e0e0e0;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f0f4f8;
+            background-color: #121212;
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
+            color: #bb86fc;
             font-size: 2.5em;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .grid-container {
             display: grid;
@@ -29,23 +29,23 @@
             gap: 20px;
         }
         .output-container {
-            background-color: #fff;
+            background-color: #1e1e1e;
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
         }
         h2 {
-            color: #3498db;
-            border-bottom: 2px solid #3498db;
+            color: #03dac6;
+            border-bottom: 2px solid #03dac6;
             padding-bottom: 10px;
             font-size: 1.2em;
             margin-top: 0;
         }
         pre {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
+            background-color: #2c2c2c;
+            border: 1px solid #333;
             border-radius: 5px;
             padding: 10px;
             white-space: pre-wrap;
@@ -54,6 +54,7 @@
             max-height: 150px;
             overflow-y: auto;
             flex-grow: 1;
+            color: #e0e0e0;
         }
         .input-form {
             margin-top: 10px;
@@ -63,12 +64,14 @@
             width: calc(100% - 16px);
             padding: 8px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
             border-radius: 4px;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
         }
         .input-form input[type="submit"] {
-            background-color: #2ecc71;
-            color: white;
+            background-color: #bb86fc;
+            color: #121212;
             border: none;
             padding: 8px 15px;
             border-radius: 4px;
@@ -76,11 +79,11 @@
             transition: background-color 0.3s ease;
         }
         .input-form input[type="submit"]:hover {
-            background-color: #27ae60;
+            background-color: #9966cc;
         }
         .output-space {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
+            background-color: #2c2c2c;
+            border: 1px solid #333;
             border-radius: 5px;
             padding: 10px;
             margin-top: 10px;
@@ -90,6 +93,7 @@
             font-size: 0.8em;
             max-height: 100px;
             overflow-y: auto;
+            color: #e0e0e0;
         }
     </style>
 </head>
