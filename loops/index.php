@@ -60,7 +60,8 @@
             margin-top: 10px;
         }
         .input-form input[type="text"],
-        .input-form input[type="number"] {
+        .input-form input[type="number"],
+        .input-form input[type="password"] {
             width: calc(100% - 16px);
             padding: 8px;
             margin-bottom: 10px;
@@ -127,13 +128,27 @@
     displayOutput("Act 1: Even Numbers from 1 to 20", $output);
 
     // Act 2: Password Validator
+    $passwordResult = "";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_submit'])) {
+        $password = $_POST['password'];
+        $correctPassword = "password123";
+        $validated = false;
+        do {
+            if ($password === $correctPassword) {
+                $passwordResult = "Access Granted.";
+            } else {
+                $passwordResult = "Incorrect Password.";
+            }
+            $validated = true;
+        } while (!$validated);
+    }
+
     $passwordForm = '
-    <form class="input-form" onsubmit="return validatePassword(event)">
-        <input type="text" id="password" placeholder="Enter password">
-        <input type="submit" value="Check Password">
-    </form>
-    <div id="passwordOutput" class="output-space"></div>';
-    displayOutput("Act 2: Password Validator", "", $passwordForm);
+    <form method="post" class="input-form">
+        <input type="password" name="password" placeholder="Enter password" required>
+        <input type="submit" name="password_submit" value="Check Password">
+    </form>';
+    displayOutput("Act 2: Password Validator", $passwordResult, $passwordForm);
 
     // Act 3: Multiplication Table
     ob_start();
@@ -191,13 +206,26 @@
     displayOutput("Act 7: Student Details (Key-Value Pairs)", $output);
 
     // Act 8: Factorial Calculator
+    $factorialResult = "";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['factorial_submit'])) {
+        $number = intval($_POST['factorialNumber']);
+        if ($number < 0) {
+            $factorialResult = "Invalid input. Please enter a non-negative integer.";
+        } else {
+            $factorial = 1;
+            for ($i = 2; $i <= $number; $i++) {
+                $factorial *= $i;
+            }
+            $factorialResult = "Factorial of $number is: $factorial";
+        }
+    }
+
     $factorialForm = '
-    <form class="input-form" onsubmit="return calculateFactorial(event)">
-        <input type="number" id="factorialNumber" placeholder="Enter a number">
-        <input type="submit" value="Calculate Factorial">
-    </form>
-    <div id="factorialOutput" class="output-space"></div>';
-    displayOutput("Act 8: Factorial Calculator", "", $factorialForm);
+    <form method="post" class="input-form">
+        <input type="number" name="factorialNumber" placeholder="Enter a number" required>
+        <input type="submit" name="factorial_submit" value="Calculate Factorial">
+    </form>';
+    displayOutput("Act 8: Factorial Calculator", $factorialResult, $factorialForm);
 
     // Act 9: FizzBuzz
     ob_start();
@@ -221,13 +249,33 @@
     displayOutput("Act 9: FizzBuzz (1 to 50)", $output);
 
     // Act 10: Prime Number Checker
+    $primeResult = "";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['prime_submit'])) {
+        $number = intval($_POST['primeNumber']);
+        if ($number < 2) {
+            $primeResult = "$number is not a prime number.";
+        } else {
+            $isPrime = true;
+            for ($i = 2; $i <= sqrt($number); $i++) {
+                if ($number % $i === 0) {
+                    $isPrime = false;
+                    break;
+                }
+            }
+            if ($isPrime) {
+                $primeResult = "$number is a prime number.";
+            } else {
+                $primeResult = "$number is not a prime number.";
+            }
+        }
+    }
+
     $primeForm = '
-    <form class="input-form" onsubmit="return checkPrime(event)">
-        <input type="number" id="primeNumber" placeholder="Enter a number">
-        <input type="submit" value="Check Prime">
-    </form>
-    <div id="primeOutput" class="output-space"></div>';
-    displayOutput("Act 10: Prime Number Checker", "", $primeForm);
+    <form method="post" class="input-form">
+        <input type="number" name="primeNumber" placeholder="Enter a number" required>
+        <input type="submit" name="prime_submit" value="Check Prime">
+    </form>';
+    displayOutput("Act 10: Prime Number Checker", $primeResult, $primeForm);
 
     // Act 11: Fibonacci Sequence
     ob_start();
@@ -246,69 +294,25 @@
     displayOutput("Act 11: Fibonacci Sequence (First 10 Numbers)", $output);
 
     // Act 12: String Reverse
+    $reverseResult = "";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reverse_submit'])) {
+        $originalString = $_POST['reverseString'];
+        $reversedString = '';
+        $length = strlen($originalString);
+        for ($i = $length - 1; $i >= 0; $i--) {
+            $reversedString .= $originalString[$i];
+        }
+        $reverseResult = "Original: $originalString\nReversed: $reversedString";
+    }
+
     $reverseForm = '
-    <form class="input-form" onsubmit="return reverseString(event)">
-        <input type="text" id="reverseString" placeholder="Enter a string">
-        <input type="submit" value="Reverse String">
-    </form>
-    <div id="reverseOutput" class="output-space"></div>';
-    displayOutput("Act 12: String Reverse", "", $reverseForm);
+    <form method="post" class="input-form">
+        <input type="text" name="reverseString" placeholder="Enter a string" required>
+        <input type="submit" name="reverse_submit" value="Reverse String">
+    </form>';
+    displayOutput("Act 12: String Reverse", $reverseResult, $reverseForm);
     ?>
 
-    <script>
-    function validatePassword(event) {
-        event.preventDefault();
-        const password = document.getElementById('password').value;
-        const correctPassword = "password123";
-        const output = password === correctPassword ? "Access Granted." : "Incorrect Password.";
-        document.getElementById('passwordOutput').textContent = output;
-    }
-
-    function calculateFactorial(event) {
-        event.preventDefault();
-        const number = parseInt(document.getElementById('factorialNumber').value);
-        if (isNaN(number) || number < 0) {
-            document.getElementById('factorialOutput').textContent = "Invalid input. Please enter a non-negative integer.";
-        } else {
-            let factorial = 1;
-            for (let i = 2; i <= number; i++) {
-                factorial *= i;
-            }
-            document.getElementById('factorialOutput').textContent = `Factorial of ${number} is: ${factorial}`;
-        }
-    }
-
-    function checkPrime(event) {
-        event.preventDefault();
-        const number = parseInt(document.getElementById('primeNumber').value);
-        if (isNaN(number) || number < 0) {
-            document.getElementById('primeOutput').textContent = "Invalid input. Please enter a non-negative integer.";
-        } else {
-            let isPrime = number > 1;
-            for (let i = 2; i < number; i++) {
-                if (number % i === 0) {
-                    isPrime = false;
-                    break;
-                }
-            }
-            document.getElementById('primeOutput').textContent = isPrime ? `${number} is a prime number.` : `${number} is not a prime number.`;
-        }
-    }
-
-    function reverseString(event) {
-        event.preventDefault();
-        const originalString = document.getElementById('reverseString').value;
-        const reversedString = originalString.split('').reverse().join('');
-        document.getElementById('reverseOutput').textContent = `Original: ${originalString}\nReversed: ${reversedString}`;
-    }
-
-    // Add event listeners to forms
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelector('form[onsubmit="return validatePassword(event)"]').addEventListener('submit', validatePassword);
-        document.querySelector('form[onsubmit="return calculateFactorial(event)"]').addEventListener('submit', calculateFactorial);
-        document.querySelector('form[onsubmit="return checkPrime(event)"]').addEventListener('submit', checkPrime);
-        document.querySelector('form[onsubmit="return reverseString(event)"]').addEventListener('submit', reverseString);
-    });
-    </script>
+    </div>
 </body>
 </html>
