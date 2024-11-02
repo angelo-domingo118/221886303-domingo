@@ -27,8 +27,10 @@ $result = $conn->query($sql);
                 <?php if ($result->num_rows > 0): ?>
                     <?php while($row = $result->fetch_assoc()): ?>
                         <div class="note-card">
-                            <h2><?php echo htmlspecialchars($row['title']); ?></h2>
-                            <p><?php echo nl2br(htmlspecialchars($row['content'])); ?></p>
+                            <div class="note-card-content">
+                                <h2><?php echo htmlspecialchars($row['title']); ?></h2>
+                                <p><?php echo nl2br(htmlspecialchars($row['content'])); ?></p>
+                            </div>
                             <div class="note-footer">
                                 <span class="date">Last updated: <?php echo date('M d, Y', strtotime($row['updated_at'])); ?></span>
                                 <div class="actions">
@@ -43,34 +45,41 @@ $result = $conn->query($sql);
                 <?php endif; ?>
             </div>
         </div>
+    </div>
 
-        <div class="chatbot-section">
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div class="chat-title">
-                        <span class="material-icons">smart_toy</span>
-                        <h3>AI Assistant</h3>
-                    </div>
+    <div class="chatbot-section">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span class="material-icons">smart_toy</span>
+                    <h3>AI Assistant</h3>
                 </div>
-                <div class="voice-controls">
-                    <button id="voice-button" onclick="toggleRecording()">
-                        <span class="material-icons">mic</span>
-                    </button>
-                    <div class="status-indicator" id="status">Click to start speaking</div>
-                </div>
-                <div class="chat-messages" id="chat-messages"></div>
-                <div class="input-area">
-                    <input type="text" 
-                           id="user-input" 
-                           placeholder="Ask me anything about your notes..."
-                           autocomplete="off">
-                    <button onclick="sendMessage()" class="btn-send">
-                        <span class="material-icons">send</span>
-                    </button>
-                </div>
+                <button class="chat-close-btn" onclick="toggleChatbot()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="voice-controls">
+                <button id="voice-button" onclick="toggleRecording()">
+                    <span class="material-icons">mic</span>
+                </button>
+                <div class="status-indicator" id="status">Click to start speaking</div>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="input-area">
+                <input type="text" 
+                       id="user-input" 
+                       placeholder="Ask me anything about your notes..."
+                       autocomplete="off">
+                <button onclick="sendMessage()" class="btn-send">
+                    <span class="material-icons">send</span>
+                </button>
             </div>
         </div>
     </div>
+
+    <button class="chatbot-toggle" onclick="toggleChatbot()">
+        <span class="material-icons">chat</span>
+    </button>
 
     <script src="js/chatbot.js"></script>
 </body>

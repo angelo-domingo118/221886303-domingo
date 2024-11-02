@@ -90,9 +90,20 @@ async function sendMessage() {
                            - Do not create multiple notes unless specifically requested
                            - Always check if note exists before creating
                         2. Edit notes:
-                           - Use searchNotes first to find the note
-                           - Use editNote function when asked to modify existing notes
-                           - Confirm after successful edits
+                           - When asked to edit a note:
+                             * First use searchNotes to find the note
+                             * Show matching notes to user
+                             * Wait for user to confirm which note to edit
+                             * After user confirms, use editNote function with:
+                               - The correct note ID
+                               - The new content
+                               - Keep original title unless specifically asked to change it
+                           - Handle requests like:
+                             * "edit the note about cats"
+                             * "update the cat breeds note"
+                             * "summarize the cat behavior note"
+                           - Always confirm successful edits
+                           - Do not just show edited content, actually update the note
                         3. Delete notes:
                            - Use deleteNote function for various delete requests
                            - Always search first and ask for confirmation
@@ -284,6 +295,106 @@ async function sendMessage() {
                                     return;
                                 }
                             }
+                        } else if (functionName === 'editNote') {
+                            try {
+                                // Check for pending edit in message history
+                                const pendingEdit = messageHistory.find(msg => 
+                                    msg.role === "function" && 
+                                    msg.name === "editNote" && 
+                                    JSON.parse(msg.content).pendingEdit
+                                );
+
+                                if (pendingEdit) {
+                                    const editDetails = JSON.parse(pendingEdit.content);
+                                    
+                                    // Find the selected note by title
+                                    const selectedNote = editDetails.notes.find(note => 
+                                        note.title.toLowerCase() === message.content.toLowerCase() ||
+                                        note.title.toLowerCase() === functionArgs.title?.toLowerCase()
+                                    );
+
+                                    if (selectedNote) {
+                                        // If we have proposed changes, use them
+                                        const editParams = {
+                                            id: selectedNote.id,
+                                            title: editDetails.proposedChanges?.title || selectedNote.title,
+                                            content: editDetails.proposedChanges?.content || functionArgs.content || selectedNote.content
+                                        };
+
+                                        const result = await callNoteAPI('edit', editParams);
+                                        
+                                        if (result.success) {
+                                            addMessageToChat('bot', `Successfully updated note: "${editParams.title}"`);
+                                            await refreshNotesList();
+                                            
+                                            // Clear the pending edit from history
+                                            messageHistory = messageHistory.filter(msg => 
+                                                !(msg.role === "function" && 
+                                                  msg.name === "editNote" && 
+                                                  JSON.parse(msg.content).pendingEdit)
+                                            );
+                                        } else {
+                                            addMessageToChat('bot', `Failed to update note: ${result.error}`);
+                                        }
+                                    } else {
+                                        addMessageToChat('bot', 'Could not find the specified note to edit.');
+                                    }
+                                } else {
+                                    // First time edit request, search for the note
+                                    const searchResult = await callNoteAPI('search', { 
+                                        query: functionArgs.query || functionArgs.title 
+                                    });
+                                    
+                                    if (!searchResult.notes || searchResult.notes.length === 0) {
+                                        addMessageToChat('bot', 'I couldn\'t find any notes matching your request.');
+                                        return;
+                                    }
+
+                                    // Show matching notes to user
+                                    const notesList = searchResult.notes.map(note => 
+                                        `- "${note.title}": ${note.content.substring(0, 50)}...`
+                                    ).join('\n');
+
+                                    const confirmMessage = `Here are the matching notes:\n${notesList}\n\nPlease confirm which note you want to edit by replying with the title.`;
+                                    addMessageToChat('bot', confirmMessage);
+
+                                    // Store the search results and proposed changes
+                                    messageHistory.push({
+                                        role: "function",
+                                        name: "editNote",
+                                        content: JSON.stringify({
+                                            pendingEdit: true,
+                                            notes: searchResult.notes,
+                                            proposedChanges: {
+                                                title: functionArgs.title,
+                                                content: functionArgs.content
+                                            }
+                                        })
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Edit function error:', error);
+                                addMessageToChat('bot', `Sorry, there was an error editing the note: ${error.message}`);
+                            }
+                        } else if (functionName === 'searchNotes') {
+                            const result = await callNoteAPI('search', functionArgs);
+                            
+                            if (!result.notes || result.notes.length === 0) {
+                                addMessageToChat('bot', 'No notes found matching your search.');
+                                return;
+                            }
+
+                            const notesList = result.notes.map(note => 
+                                `- "${note.title}": ${note.content.substring(0, 100)}...`
+                            ).join('\n');
+
+                            addMessageToChat('bot', `Here are the matching notes:\n${notesList}`);
+                            
+                            messageHistory.push({
+                                role: "function",
+                                name: "searchNotes",
+                                content: JSON.stringify(result)
+                            });
                         } else {
                             // Handle other function calls
                             const result = await callNoteAPI(
@@ -424,3 +535,23 @@ async function refreshNotesList() {
 
 // Call refreshNotesList when the page loads
 document.addEventListener('DOMContentLoaded', refreshNotesList);
+
+function toggleChatbot() {
+    const chatbotSection = document.querySelector('.chatbot-section');
+    const toggleButton = document.querySelector('.chatbot-toggle');
+    
+    chatbotSection.classList.toggle('active');
+    
+    // Handle toggle button visibility
+    if (chatbotSection.classList.contains('active')) {
+        toggleButton.style.display = 'none';
+    } else {
+        toggleButton.style.display = 'flex';
+    }
+}
+
+// Hide chatbot by default on all screens
+document.addEventListener('DOMContentLoaded', () => {
+    const chatbotSection = document.querySelector('.chatbot-section');
+    chatbotSection.classList.remove('active');
+});
