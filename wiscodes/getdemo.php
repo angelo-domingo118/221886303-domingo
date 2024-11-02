@@ -15,6 +15,8 @@
         <input type="submit" value="Search">
     </form>
 
+
+    
     <?php
     // Check if the 'query' parameter is set in the URL
     if (isset($_GET['query'])) {
@@ -22,6 +24,7 @@
         $searchQuery = htmlspecialchars($_GET['query']);
 
         // Connect to the database
+        
         $servername = "localhost";
         $username = "root"; // Or your MySQL username
         $password = ""; // Your MySQL password (leave empty if no password)

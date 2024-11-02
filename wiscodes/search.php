@@ -22,6 +22,7 @@
                 $searchQuery = htmlspecialchars($_GET['query']);
         
                 // Connect to the database
+                
                 $servername = "localhost";
                 $username = "root"; // Or your MySQL username
                 $password = ""; // Your MySQL password (leave empty if no password)
