@@ -20,7 +20,19 @@ $result = $conn->query($sql);
         <div class="notes-section">
             <header>
                 <h1>NoteKing App</h1>
-                <a href="add.php" class="add-btn">Add New Note</a>
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <input type="text" 
+                               id="search-input" 
+                               placeholder="Search notes..."
+                               autocomplete="off">
+                        <span class="material-icons search-icon">search</span>
+                    </div>
+                </div>
+                <a href="add.php" class="add-btn">
+                    <span class="material-icons">add</span>
+                    Add New Note
+                </a>
             </header>
 
             <div class="notes-grid">
@@ -34,8 +46,16 @@ $result = $conn->query($sql);
                             <div class="note-footer">
                                 <span class="date">Last updated: <?php echo date('M d, Y', strtotime($row['updated_at'])); ?></span>
                                 <div class="actions">
-                                    <a href="edit.php?id=<?php echo $row['id']; ?>" class="edit-btn">Edit</a>
-                                    <a href="delete.php?id=<?php echo $row['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this note?')">Delete</a>
+                                    <a href="edit.php?id=<?php echo $row['id']; ?>" class="edit-btn">
+                                        <span class="material-icons">edit</span>
+                                        Edit
+                                    </a>
+                                    <a href="delete.php?id=<?php echo $row['id']; ?>" 
+                                       class="delete-btn" 
+                                       onclick="return confirm('Are you sure you want to delete this note?')">
+                                        <span class="material-icons">delete</span>
+                                        Delete
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -82,5 +102,6 @@ $result = $conn->query($sql);
     </button>
 
     <script src="js/chatbot.js"></script>
+    <script src="js/search.js"></script>
 </body>
-</html> 
+</html>     

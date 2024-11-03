@@ -1,22 +1,25 @@
 :root {
-    --primary-color: #8B5CF6;      /* Purple */
-    --primary-light: #A78BFA;
-    --secondary-color: #10B981;    /* Emerald */
-    --secondary-light: #34D399;
-    --background: #111827;         /* Dark background */
-    --surface: #1F2937;           /* Card background */
-    --surface-light: #374151;     /* Lighter surface */
-    --text-primary: #F9FAFB;
-    --text-secondary: #D1D5DB;
-    --danger: #EF4444;
-    --danger-hover: #DC2626;
-    --border-color: #374151;
-    --input-background: #374151;
-    --transition: all 0.3s ease;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    --max-width-mobile: 600px;
-    --max-width-tablet: 900px;
+    --black-pure: #000000;
+    --black-rich: #121212;     /* Main background */
+    --black-jet: #1A1A1A;      /* Surface background */
+    --black-charcoal: #1E1E1E; /* Card background */
+    --black-onyx: #232323;     /* Input background */
+    --black-smoke: #282828;    /* Hover states */
+    --black-slate: #2C2C2C;    /* Borders */
+    --gray-dim: #363636;       /* Secondary elements */
+    --gray-silver: #666666;    /* Disabled states */
+    
+    --text-primary: #FFFFFF;
+    --text-secondary: #CCCCCC;
+    --text-tertiary: #999999;
+    
+    --error: #3B2626;          /* Darker red */
+    --success: #263B26;        /* Darker green */
+    
+    --overlay: rgba(0, 0, 0, 0.7);
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+    
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
     --spacing-md: 1.5rem;
@@ -24,6 +27,10 @@
     --border-radius-sm: 8px;
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
+    
+    --accent-light: #404040;
+    --accent: #333333;
+    --accent-dark: #292929;
 }
 
 * {
@@ -35,7 +42,7 @@
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
-    background-color: var(--background);
+    background-color: var(--black-rich);
     color: var(--text-primary);
     min-height: 100vh;
     font-size: 16px;
@@ -50,12 +57,13 @@ body {
     margin: 0 auto;
     padding: var(--spacing-sm);
     gap: var(--spacing-md);
+    background-color: var(--black-rich);
 }
 
 /* Header Styles */
 header {
     padding: var(--spacing-md);
-    background: var(--surface);
+    background: var(--black-jet);
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow);
     margin-bottom: var(--spacing-md);
@@ -64,41 +72,34 @@ header {
     gap: var(--spacing-sm);
     align-items: center;
     text-align: center;
+    border: 1px solid var(--black-slate);
 }
 
 h1 {
-    color: var(--primary-color);
+    color: var(--text-primary);
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: var(--transition);
+    letter-spacing: -0.5px;
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
 }
 
-.add-btn, .back-btn {
-    background-color: var(--primary-color);
-    color: white;
+.add-btn, .back-btn, .submit-btn {
+    background-color: var(--black-smoke);
+    color: var(--text-primary);
     padding: var(--spacing-sm) var(--spacing-md);
-    text-decoration: none;
+    border: 1px solid var(--black-slate);
     border-radius: var(--border-radius-md);
-    font-weight: 600;
-    transition: var(--transition);
-    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
-    min-height: 48px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xs);
-    font-size: 1rem;
-    width: 100%;
-    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
+    text-decoration: none;
 }
 
-.add-btn:hover, .back-btn:hover {
-    background-color: var(--primary-light);
+.add-btn:hover, .back-btn:hover, .submit-btn:hover {
+    background-color: var(--accent-light);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
 /* Note Cards - Mobile First Approach */
@@ -110,37 +111,26 @@ h1 {
 }
 
 .note-card {
-    background-color: var(--surface);
+    background-color: var(--black-charcoal);
     padding: var(--spacing-md);
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow);
-    transition: transform 0.2s ease;
-    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    border: 1px solid var(--black-slate);
     min-height: 200px; /* Reduced minimum height for mobile */
     display: flex;
     flex-direction: column;
     position: relative;
 }
 
-.note-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-    opacity: 0;
-    transition: var(--transition);
-}
-
 .note-card:hover {
-    transform: translateY(-4px);
+    background-color: var(--black-smoke);
     box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
 }
 
-.note-card:hover::before {
-    opacity: 1;
+.note-card::before {
+    display: none;
 }
 
 .note-card h2 {
@@ -170,11 +160,11 @@ h1 {
 
 /* Note Form Styling */
 .note-form {
-    background: var(--surface);
+    background: var(--black-jet);
     padding: 32px;
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--black-slate);
     margin-top: 24px;
 }
 
@@ -187,7 +177,7 @@ h1 {
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-weight: 500;
 }
 
@@ -195,8 +185,8 @@ h1 {
 .form-group textarea {
     width: 100%;
     padding: var(--spacing-md);
-    background-color: var(--input-background);
-    border: 2px solid var(--border-color);
+    background-color: var(--black-onyx);
+    border: 1px solid var(--black-slate);
     border-radius: 8px;
     color: var(--text-primary);
     font-size: 1rem;
@@ -207,8 +197,9 @@ h1 {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.2);
+    background-color: var(--black-smoke);
 }
 
 .submit-btn {
@@ -243,8 +234,8 @@ h1 {
 }
 
 .date {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
     font-weight: 500;
     white-space: nowrap;
     order: 2; /* Move date below actions */
@@ -255,33 +246,34 @@ h1 {
     width: 100%; /* Full width buttons */
     display: flex;
     gap: 8px;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.note-card:hover .actions {
+    opacity: 1;
 }
 
 .edit-btn, .delete-btn {
-    flex: 1; /* Equal width buttons */
-    justify-content: center;
-    padding: 8px;
-    font-size: 0.85rem;
-}
-
-.edit-btn {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.delete-btn {
-    background-color: var(--danger);
-    color: white;
+    background-color: var(--black-smoke);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border: 1px solid var(--black-slate);
+    border-radius: var(--border-radius-sm);
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
 }
 
 .edit-btn:hover {
-    background-color: var(--secondary-light);
-    transform: translateY(-2px);
+    background-color: var(--accent-light);
 }
 
 .delete-btn:hover {
-    background-color: var(--danger-hover);
-    transform: translateY(-2px);
+    background-color: var(--error-hover);
 }
 
 /* Error Message */
@@ -357,6 +349,7 @@ h1 {
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
     width: 8px;
+    background-color: var(--black-rich);
 }
 
 ::-webkit-scrollbar-track {
@@ -364,12 +357,12 @@ h1 {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
+    background-color: var(--gray-dim);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-light);
+    background-color: var(--gray-silver);
 }
 
 /* Single Column Layout for Add/Edit Pages */
@@ -396,6 +389,8 @@ h1 {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     pointer-events: none;
+    background-color: var(--black-jet);
+    border: 1px solid var(--black-slate);
 }
 
 .chatbot-section.active {
@@ -414,8 +409,8 @@ h1 {
 
 .chat-header {
     padding: 16px;
-    background: var(--surface-light);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--black-charcoal);
+    border-bottom: 1px solid var(--black-slate);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -435,7 +430,7 @@ h1 {
 }
 
 .chat-title .material-icons {
-    color: var(--primary-color);
+    color: var(--text-primary);
 }
 
 .chat-messages {
@@ -445,7 +440,7 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: var(--background);
+    background: var(--black-rich);
     scroll-behavior: smooth;
 }
 
@@ -457,18 +452,21 @@ h1 {
     line-height: 1.5;
     transition: opacity 0.3s ease;
     word-break: break-word;
+    background-color: var(--black-charcoal);
+    border: 1px solid var(--black-slate);
 }
 
 .user-message {
-    background-color: var(--primary-color);
+    background-color: var(--accent);
     color: white;
     align-self: flex-end;
     border-bottom-right-radius: 4px;
     margin-left: 15%;
+    border-color: var(--accent-light);
 }
 
 .bot-message {
-    background: var(--surface-light);
+    background: var(--black-charcoal);
     border-radius: 12px;
     padding: 12px 16px;
     margin-left: 0;
@@ -480,9 +478,9 @@ h1 {
 .input-area {
     position: sticky;
     bottom: 0;
-    background: var(--surface);
+    background: var(--black-charcoal);
     padding: 16px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--black-slate);
     display: flex;
     gap: 12px;
     align-items: center;
@@ -492,8 +490,8 @@ h1 {
 #user-input {
     flex: 1;
     padding: 12px 16px;
-    background-color: var(--input-background);
-    border: 1px solid var(--border-color);
+    background-color: var(--black-onyx);
+    border: 1px solid var(--black-slate);
     border-radius: 24px;
     color: var(--text-primary);
     font-size: 0.95rem;
@@ -502,13 +500,14 @@ h1 {
 
 #user-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.2);
+    background-color: var(--black-smoke);
 }
 
 .btn-send {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--black-smoke);
+    color: var(--text-primary);
     width: 40px;
     height: 40px;
     border: none;
@@ -521,7 +520,7 @@ h1 {
 }
 
 .btn-send:hover {
-    background-color: var(--primary-light);
+    background-color: var(--gray-dim);
     transform: scale(1.05);
 }
 
@@ -539,7 +538,8 @@ h1 {
 }
 
 #voice-button {
-    background-color: var(--secondary-color);
+    background-color: var(--accent);
+    border: 1px solid var(--black-slate);
     color: white;
     width: 36px;
     height: 36px;
@@ -553,7 +553,7 @@ h1 {
 }
 
 #voice-button:hover {
-    background-color: var(--secondary-light);
+    background-color: var(--accent-light);
     transform: scale(1.05);
 }
 
@@ -676,9 +676,9 @@ h1 {
 /* Loading States */
 .loading-skeleton {
     background: linear-gradient(90deg, 
-        var(--surface-light) 25%, 
-        var(--surface) 50%, 
-        var(--surface-light) 75%
+        var(--black-charcoal) 25%, 
+        var(--black-smoke) 50%, 
+        var(--black-charcoal) 75%
     );
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
@@ -722,9 +722,9 @@ h1 {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: var(--accent);
     color: white;
-    border: none;
+    border: 1px solid var(--black-slate);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -735,8 +735,7 @@ h1 {
 }
 
 .chatbot-toggle:hover {
-    transform: scale(1.05);
-    background: var(--primary-light);
+    background-color: var(--accent-light);
 }
 
 .chatbot-toggle .material-icons {
@@ -764,6 +763,8 @@ h1 {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     pointer-events: none;
+    background-color: var(--black-jet);
+    border: 1px solid var(--black-slate);
 }
 
 .chatbot-section.active {
@@ -810,8 +811,8 @@ h1 {
 /* Chatbot Header and Close Button */
 .chat-header {
     padding: 16px;
-    background: var(--surface-light);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--black-charcoal);
+    border-bottom: 1px solid var(--black-slate);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -879,23 +880,23 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
+    background-color: var(--accent);
+    color: var(--text-primary);
+    border: 1px solid var(--black-slate);
     border-radius: var(--border-radius-md);
     padding: 8px 16px;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
     margin-top: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
 }
 
 .save-note-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
-    background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+    background-color: var(--accent-light);
+    box-shadow: var(--shadow-lg);
 }
 
 .save-note-btn .material-icons {
@@ -912,21 +913,15 @@ h1 {
 }
 
 .message-content .list-number {
-    display: inline-block;
-    min-width: 24px;
-    margin-right: 4px;
-    color: var(--primary-color);
-    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .message-content strong {
-    color: var(--primary-color);
-    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .message-content em {
-    color: var(--secondary-color);
-    font-style: italic;
+    color: var(--text-secondary);
 }
 
 .message-content code {
@@ -960,7 +955,7 @@ h1 {
 
 .message-content ul li::before {
     content: "•";
-    color: var(--primary-color);
+    color: var(--text-secondary);
     font-weight: bold;
     display: inline-block;
     width: 1em;
@@ -982,10 +977,448 @@ h1 {
 
 .message-content ol li::before {
     content: counter(item) ".";
-    color: var(--primary-color);
+    color: var(--text-secondary);
     font-weight: 500;
     display: inline-block;
     width: 24px;
     margin-left: -24px;
     margin-right: 4px;
+}
+
+/* Add these styles to your existing CSS file */
+
+/* Search Container Styles */
+.search-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+}
+
+#search-input {
+    width: 100%;
+    padding: 12px 48px 12px 20px;
+    background: var(--black-onyx);
+    border: 1px solid var(--black-slate);
+    border-radius: var(--border-radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    outline: none;
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(64, 64, 64, 0.2);
+    background-color: var(--black-smoke);
+}
+
+.search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    transition: color 0.3s ease;
+}
+
+#search-input:focus + .search-icon {
+    color: var(--text-secondary);
+}
+
+/* Loading State */
+.notes-grid.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* No Results State */
+.no-results {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--text-secondary);
+    background: var(--black-charcoal);
+    border-radius: var(--border-radius-md);
+    grid-column: 1 / -1;
+}
+
+/* Error Message */
+.error-message {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--error);
+    background: var(--black-charcoal);
+    border-radius: var(--border-radius-md);
+    grid-column: 1 / -1;
+    border-left: 4px solid var(--error-hover);
+}
+
+/* Responsive Search */
+@media (min-width: 768px) {
+    header {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .search-container {
+        order: 2;
+        flex-basis: 100%;
+    }
+    
+    .search-wrapper {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    header {
+        flex-wrap: nowrap;
+    }
+    
+    .search-container {
+        order: initial;
+        flex-basis: auto;
+    }
+}
+
+/* Search Animation */
+@keyframes searchPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#search-input:focus {
+    animation: searchPulse 0.3s ease-in-out;
+}
+
+/* Update existing component styles */
+body {
+    background-color: var(--black-rich);
+    color: var(--text-primary);
+}
+
+.container {
+    background-color: var(--black-rich);
+}
+
+header {
+    background: var(--black-jet);
+    border: 1px solid var(--black-slate);
+}
+
+.note-card {
+    background-color: var(--black-charcoal);
+    border: 1px solid var(--black-slate);
+    box-shadow: var(--shadow);
+}
+
+.note-card:hover {
+    background-color: var(--black-smoke);
+    box-shadow: var(--shadow-lg);
+}
+
+.search-wrapper input {
+    background-color: var(--black-onyx);
+    border: 1px solid var(--black-slate);
+    color: var(--text-primary);
+}
+
+.search-wrapper input:focus {
+    background-color: var(--black-smoke);
+    border-color: var(--gray-dim);
+}
+
+.search-icon {
+    color: var(--text-tertiary);
+}
+
+.add-btn, .edit-btn, .delete-btn {
+    background-color: var(--black-smoke);
+    color: var(--text-primary);
+    border: 1px solid var(--black-slate);
+    text-decoration: none;
+}
+
+.add-btn:hover, .edit-btn:hover {
+    background-color: var(--gray-dim);
+}
+
+.delete-btn:hover {
+    background-color: var(--error);
+}
+
+/* Chat Section */
+.chatbot-section {
+    background-color: var(--black-jet);
+    border: 1px solid var(--black-slate);
+}
+
+.chat-header {
+    background-color: var(--black-charcoal);
+    border-bottom: 1px solid var(--black-slate);
+}
+
+.chat-messages {
+    background-color: var(--black-rich);
+}
+
+.message {
+    background-color: var(--black-charcoal);
+    border: 1px solid var(--black-slate);
+}
+
+.user-message {
+    background-color: var(--accent);
+    border-color: var(--accent-light);
+}
+
+.bot-message {
+    background-color: var(--black-charcoal);
+}
+
+.input-area {
+    background-color: var(--black-charcoal);
+    border-top: 1px solid var(--black-slate);
+}
+
+#user-input {
+    background-color: var(--black-onyx);
+    border: 1px solid var(--black-slate);
+    color: var(--text-primary);
+}
+
+.btn-send {
+    background-color: var(--black-smoke);
+    color: var(--text-primary);
+}
+
+.btn-send:hover {
+    background-color: var(--gray-dim);
+}
+
+/* Form Elements */
+.note-form {
+    background-color: var(--black-jet);
+    border: 1px solid var(--black-slate);
+}
+
+.form-group input,
+.form-group textarea {
+    background-color: var(--black-onyx);
+    border: 1px solid var(--black-slate);
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    background-color: var(--black-smoke);
+    border-color: var(--gray-dim);
+}
+
+/* Loading States */
+.loading-skeleton {
+    background: linear-gradient(90deg, 
+        var(--black-charcoal) 25%, 
+        var(--black-smoke) 50%, 
+        var(--black-charcoal) 75%
+    );
+}
+
+/* Error States */
+.error-message {
+    background-color: var(--error);
+    border-left: 4px solid var(--error-hover);
+}
+
+/* No Results State */
+.no-results {
+    background-color: var(--black-charcoal);
+    color: var(--text-secondary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: var(--black-rich);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--gray-dim);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-silver);
+}
+
+/* Focus States */
+*:focus-visible {
+    outline: 2px solid var(--gray-dim);
+    outline-offset: 2px;
+}
+
+/* Transitions */
+.note-card,
+.btn-send,
+.add-btn,
+.edit-btn,
+.delete-btn,
+input,
+textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Update note card styles */
+.note-card {
+    background-color: var(--black-charcoal);
+    border: 1px solid var(--black-slate);
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+}
+
+.note-card:hover {
+    background-color: var(--black-smoke);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+/* Remove gradient line from note cards */
+.note-card::before {
+    display: none;
+}
+
+/* Update form styles */
+.form-group label {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.2);
+}
+
+/* Update chat message styles */
+.message {
+    border: 1px solid var(--black-slate);
+    background-color: var(--black-charcoal);
+}
+
+.user-message {
+    background-color: var(--accent);
+    border-color: var(--accent-light);
+}
+
+/* Update loading animation colors */
+.loading-skeleton {
+    background: linear-gradient(90deg, 
+        var(--black-charcoal) 25%, 
+        var(--black-smoke) 50%, 
+        var(--black-charcoal) 75%
+    );
+}
+
+/* Add subtle transitions */
+.note-card,
+.btn-send,
+.add-btn,
+.edit-btn,
+.delete-btn,
+input,
+textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Update search input styles */
+#search-input {
+    background-color: var(--black-onyx);
+    color: var(--text-primary);
+    border: 1px solid var(--black-slate);
+}
+
+#search-input:focus {
+    border-color: var(--accent-light);
+    background-color: var(--black-smoke);
+}
+
+/* Add subtle hover effects */
+.note-card:hover .note-card-content h2 {
+    color: var(--text-primary);
+}
+
+/* Update voice button */
+#voice-button {
+    background-color: var(--accent);
+    border: 1px solid var(--black-slate);
+}
+
+#voice-button:hover {
+    background-color: var(--accent-light);
+}
+
+/* Update error states */
+.error-message {
+    background-color: var(--error);
+    border-left: 4px solid var(--error-hover);
+}
+
+/* Add subtle animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.note-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Improve text contrast */
+.note-card h2 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.note-card p {
+    color: var(--text-secondary);
+}
+
+/* Update date display */
+.date {
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+}
+
+/* Add hover effect to action buttons */
+.actions {
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.note-card:hover .actions {
+    opacity: 1;
+}
+
+/* Improve button icons alignment */
+.material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+/* Add subtle border radius to all elements */
+input, 
+textarea, 
+button,
+.note-card,
+.message {
+    border-radius: var(--border-radius-md);
 }
