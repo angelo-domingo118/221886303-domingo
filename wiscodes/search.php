@@ -23,7 +23,7 @@
         
                 // Connect to the database
                 
-                $servername = "localhost";
+                $servername = "localhost:3306";
                 $username = "root"; // Or your MySQL username
                 $password = ""; // Your MySQL password (leave empty if no password)
                 $dbname = "search_db";
