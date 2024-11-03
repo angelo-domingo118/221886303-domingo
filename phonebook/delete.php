@@ -6,13 +6,14 @@ if (isset($_GET['id'])) {
     $sql = "DELETE FROM contacts WHERE id = $id";
     
     if ($conn->query($sql) === TRUE) {
-        echo "Contact deleted successfully";
+        header('Location: index.php');
+        exit();
     } else {
-        echo "Error deleting contact: " . $sql . "<br>" . $conn->error;
+        header('Location: index.php?error=1');
+        exit();
     }
 }
 
-header('location: index.php');
-
-
+header('Location: index.php');
+exit();
 ?>
