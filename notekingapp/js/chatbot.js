@@ -1,16 +1,60 @@
 const GROQ_API_KEY = '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';
 const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+const TOOL_MODEL = 'llama3-groq-70b-8192-tool-use-preview';
+const CHAT_MODEL = 'mixtral-8x7b-32768';
+const CHAT_MODEL_VERSATILE = 'llama-3.1-70b-versatile';
+
 let messageHistory = [];
 
+// Add this function to convert markdown to HTML
+function markdownToHtml(text) {
+    // Convert bullet points and numbered lists
+    text = text.replace(/^(\d+)\.\s+/gm, '<span class="list-number">$1.</span> '); // Numbered lists
+    text = text.replace(/^[-*]\s+/gm, '• '); // Bullet points
+    
+    // Convert line breaks to proper HTML
+    text = text.replace(/\n/g, '<br>');
+    
+    // Bold text
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic text
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Code blocks
+    text = text.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+    
+    // Inline code
+    text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    return text;
+}
+
+// Update the addMessageToChat function
 function addMessageToChat(role, content) {
     const chatMessages = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}-message`;
-    messageDiv.textContent = content;
-    chatMessages.appendChild(messageDiv);
     
-    // Auto scroll to bottom
+    // Only add save button to bot messages
+    if (role === 'bot') {
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = markdownToHtml(content); // Use innerHTML instead of textContent
+        
+        const saveButton = document.createElement('button');
+        saveButton.className = 'save-note-btn';
+        saveButton.innerHTML = '<span class="material-icons">save</span> Save as Note';
+        saveButton.onclick = () => saveToNotes(content);
+        
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(saveButton);
+    } else {
+        messageDiv.textContent = content;
+    }
+    
+    chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
@@ -49,6 +93,40 @@ document.getElementById('user-input')?.addEventListener('keypress', (e) => {
     }
 });
 
+async function analyzeIntent(message) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: CHAT_MODEL_VERSATILE,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are an intent analyzer. Determine if the user's message requires note operations (create/read/update/delete) or is a general question. Respond with ONLY one of these: 'note_operation' or 'general_query'"
+                    },
+                    {
+                        role: "user",
+                        content: message
+                    }
+                ],
+                temperature: 0.1,
+                max_tokens: 10
+            })
+        });
+
+        const data = await response.json();
+        const intent = data.choices[0].message.content.trim().toLowerCase();
+        return intent === 'note_operation';
+    } catch (error) {
+        console.error('Error analyzing intent:', error);
+        return false;
+    }
+}
+
 async function sendMessage() {
     const input = document.getElementById('user-input');
     const message = input.value.trim();
@@ -65,10 +143,133 @@ async function sendMessage() {
     document.getElementById('chat-messages').appendChild(loadingDiv);
 
     try {
+        // First analyze the intent
+        const isNoteOperation = await analyzeIntent(message);
+        
         messageHistory.push({
             role: "user",
             content: message
         });
+
+        const modelToUse = isNoteOperation ? TOOL_MODEL : CHAT_MODEL_VERSATILE;
+        const systemPrompt = isNoteOperation ? 
+            `You are a helpful assistant that manages notes. You MUST use the provided functions for note operations:
+            - To create a note: use createNote function
+            - To search notes: use searchNotes function
+            - To delete notes: use deleteNote function
+            - To edit notes: use editNote function
+            
+            IMPORTANT: 
+            - Always use the appropriate function for note operations
+            - Do not just describe what you could do, actually use the function
+            - Respond only with function calls for note operations` :
+            "You are a helpful assistant that provides detailed, informative answers. If the user asks about creating or managing notes, suggest using specific commands like 'create note about [topic]' instead of providing information.";
+
+        const requestBody = {
+            model: modelToUse,
+            messages: [
+                {
+                    role: "system",
+                    content: systemPrompt
+                },
+                ...messageHistory
+            ],
+            temperature: isNoteOperation ? 0.7 : 0.9,
+            max_tokens: isNoteOperation ? 4096 : 2048,
+            top_p: 1,
+            stream: false
+        };
+
+        // Add tools only if it's a note operation
+        if (isNoteOperation) {
+            requestBody.tools = [
+                {
+                    type: "function",
+                    function: {
+                        name: "createNote",
+                        description: "Create a new note",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                title: {
+                                    type: "string",
+                                    description: "Title of the note"
+                                },
+                                content: {
+                                    type: "string",
+                                    description: "Content of the note"
+                                }
+                            },
+                            required: ["title", "content"]
+                        }
+                    }
+                },
+                {
+                    type: "function",
+                    function: {
+                        name: "searchNotes",
+                        description: "Search for notes",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                query: {
+                                    type: "string",
+                                    description: "Search query"
+                                }
+                            },
+                            required: ["query"]
+                        }
+                    }
+                },
+                {
+                    type: "function",
+                    function: {
+                        name: "deleteNote",
+                        description: "Delete notes by searching title or content",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                query: {
+                                    type: "string",
+                                    description: "Search terms to find notes for deletion"
+                                },
+                                confirm: {
+                                    type: "boolean",
+                                    description: "Confirmation for deletion"
+                                }
+                            },
+                            required: ["query"]
+                        }
+                    }
+                },
+                {
+                    type: "function",
+                    function: {
+                        name: "editNote",
+                        description: "Edit an existing note",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                id: {
+                                    type: "integer",
+                                    description: "ID of the note to edit"
+                                },
+                                title: {
+                                    type: "string",
+                                    description: "New title for the note"
+                                },
+                                content: {
+                                    type: "string",
+                                    description: "New content for the note"
+                                }
+                            },
+                            required: ["id", "title", "content"]
+                        }
+                    }
+                }
+            ];
+            requestBody.tool_choice = "auto";
+        }
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -76,154 +277,30 @@ async function sendMessage() {
                 'Authorization': `Bearer ${GROQ_API_KEY}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                model: "llama3-groq-70b-8192-tool-use-preview",
-                messages: [
-                    {
-                        role: "system",
-                        content: `You are a helpful assistant that manages notes. You can:
-                        1. Create notes:
-                           - When asked to create a note, use ONLY the createNote function
-                           - Do not provide additional information in chat
-                           - Generate a clear title and comprehensive content
-                           - Example: If user asks "create note about cats", use createNote with title "Cats" and detailed content
-                           - Do not create multiple notes unless specifically requested
-                           - Always check if note exists before creating
-                        2. Edit notes:
-                           - When asked to edit a note:
-                             * First use searchNotes to find the note
-                             * Show matching notes to user
-                             * Wait for user to confirm which note to edit
-                             * After user confirms, use editNote function with:
-                               - The correct note ID
-                               - The new content
-                               - Keep original title unless specifically asked to change it
-                           - Handle requests like:
-                             * "edit the note about cats"
-                             * "update the cat breeds note"
-                             * "summarize the cat behavior note"
-                           - Always confirm successful edits
-                           - Do not just show edited content, actually update the note
-                        3. Delete notes:
-                           - Use deleteNote function for various delete requests
-                           - Always search first and ask for confirmation
-                           - Confirm after successful deletion
-                        4. Search notes:
-                           - Use searchNotes function to find existing notes
-                           - Show search results to user
-
-                        Important:
-                        - Use ONLY ONE function call per user request unless explicitly needed
-                        - Do not mix function calls with regular chat responses
-                        - When creating notes, put ALL content in the note content field, not in chat`
-                    },
-                    ...messageHistory
-                ],
-                tools: [
-                    {
-                        type: "function",
-                        function: {
-                            name: "createNote",
-                            description: "Create a new note",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    title: {
-                                        type: "string",
-                                        description: "Title of the note"
-                                    },
-                                    content: {
-                                        type: "string",
-                                        description: "Content of the note"
-                                    }
-                                },
-                                required: ["title", "content"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "searchNotes",
-                            description: "Search for notes",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    query: {
-                                        type: "string",
-                                        description: "Search query"
-                                    }
-                                },
-                                required: ["query"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "deleteNote",
-                            description: "Delete notes by searching title or content",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    query: {
-                                        type: "string",
-                                        description: "Search terms to find notes for deletion"
-                                    },
-                                    confirm: {
-                                        type: "boolean",
-                                        description: "Confirmation for deletion"
-                                    }
-                                },
-                                required: ["query"]
-                            }
-                        }
-                    },
-                    {
-                        type: "function",
-                        function: {
-                            name: "editNote",
-                            description: "Edit an existing note",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    id: {
-                                        type: "integer",
-                                        description: "ID of the note to edit"
-                                    },
-                                    title: {
-                                        type: "string",
-                                        description: "New title for the note"
-                                    },
-                                    content: {
-                                        type: "string",
-                                        description: "New content for the note"
-                                    }
-                                },
-                                required: ["id", "title", "content"]
-                            }
-                        }
-                    }
-                ],
-                tool_choice: "auto",
-                temperature: 0.7,
-                max_tokens: 1000
-            })
+            body: JSON.stringify(requestBody)
         });
 
         // Remove loading indicator
         document.querySelector('.loading')?.remove();
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 404) {
+                throw new Error('Unable to connect to AI service. Please check your API key configuration.');
+            } else if (response.status === 401) {
+                throw new Error('Invalid API key. Please check your API key configuration.');
+            } else {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
         }
 
         const data = await response.json();
         
         if (data.choices && data.choices[0].message) {
             const message = data.choices[0].message;
+            console.log('Model response:', message); // Debug log
             
-            if (message.tool_calls) {
+            if (isNoteOperation && message.tool_calls) {
+                console.log('Tool calls:', message.tool_calls); // Debug log
                 // Track if we've already created a note in this interaction
                 let noteCreated = false;
                 
@@ -440,20 +517,38 @@ async function sendMessage() {
                         }
                     }
                 }
+            } else if (isNoteOperation) {
+                // If we expected tool use but didn't get it, try to extract intent
+                if (message.content.toLowerCase().includes('create note') || 
+                    message.content.toLowerCase().includes('make a note')) {
+                    // Try to create note from the content
+                    const content = message.content;
+                    await saveToNotes(content);
+                } else {
+                    addMessageToChat('bot', 'I understand you want to work with notes. Please try rephrasing your request.');
+                }
             } else {
                 addMessageToChat('bot', message.content);
+                messageHistory.push({
+                    role: "assistant",
+                    content: message.content
+                });
             }
-            
-            // Add bot's response to message history
-            messageHistory.push({
-                role: "assistant",
-                content: message.content
-            });
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error details:', error); // Debug log
         document.querySelector('.loading')?.remove();
-        addMessageToChat('bot', `Error: ${error.message}`);
+        
+        let errorMessage = 'An error occurred while processing your request.';
+        if (error.message.includes('API key')) {
+            errorMessage = 'API key error: Please contact the administrator to check the API configuration.';
+        } else if (error.message.includes('connect')) {
+            errorMessage = 'Connection error: Unable to reach the AI service. Please try again later.';
+        } else if (error.message.includes('tool_calls')) {
+            errorMessage = 'Error with note operation. Please try again with a clearer request.';
+        }
+        
+        addMessageToChat('bot', errorMessage);
     }
 }
 
@@ -555,3 +650,78 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatbotSection = document.querySelector('.chatbot-section');
     chatbotSection.classList.remove('active');
 });
+
+// Add this function to generate title using Groq
+async function generateTitle(content) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: CHAT_MODEL,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a title generator. Generate a concise, descriptive title (max 5-7 words) for the given content. The title should be catchy but informative. Do not use quotes or punctuation in the title. Respond with only the title."
+                    },
+                    {
+                        role: "user",
+                        content: `Generate a title for this content: ${content}`
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 50
+            })
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Unable to connect to AI service. Please check your API key configuration.');
+            } else if (response.status === 401) {
+                throw new Error('Invalid API key. Please check your API key configuration.');
+            } else {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('Error generating title:', error);
+        // More robust fallback title generation
+        const words = content.split(' ');
+        const title = words.slice(0, 5).join(' ');
+        return title.length > 50 ? title.substring(0, 47) + '...' : title;
+    }
+}
+
+// Update the saveToNotes function to use the title generator
+async function saveToNotes(content) {
+    try {
+        // Show saving indicator in chat
+        addMessageToChat('bot', 'Generating title and saving note...');
+        
+        // Generate title using Groq
+        const title = await generateTitle(content);
+        
+        const result = await callNoteAPI('create', {
+            title: title,
+            content: content
+        });
+
+        if (result.success) {
+            // Show success message in chat
+            addMessageToChat('bot', `Note saved successfully with title: "${title}"`);
+            // Refresh the notes list
+            await refreshNotesList();
+        } else {
+            addMessageToChat('bot', 'Failed to save note: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error saving note:', error);
+        addMessageToChat('bot', 'Error saving note: ' + error.message);
+    }
+}
